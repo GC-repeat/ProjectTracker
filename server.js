@@ -14,7 +14,13 @@ if (!fs.existsSync(PROJECT_DIR)) {
 
 // Middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+// Serve static files (but don't auto-serve index.html for /)
+app.use(express.static(path.join(__dirname), { index: false }));
+
+// Redirect / to the login page
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "login.html"));
+});
 
 // Helper to get individual project filename
 function getProjectFilename(project) {
