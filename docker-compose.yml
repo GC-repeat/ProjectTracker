@@ -11,6 +11,8 @@ services:
     volumes:
       - ./projects.json:/app/projects.json           # Main projects file
       - ./project:/app/project                       # Individual project files
+    env_file:
+      - password.env                   
 
 networks:
   projectnet:
