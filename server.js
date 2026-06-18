@@ -1,9 +1,16 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-
+const crypto = require("crypto");
+require('dotenv').config();
 const app = express();
 const PORT = 80;
+
+// Validate that PASSWORD is set in .env
+if (!process.env.PASSWORD) {
+    console.error("ERROR: PASSWORD is not set in .env file. Server aborted.");
+    process.exit(1);
+}
 const DATA_FILE = path.join(__dirname, "projects.json");
 const PROJECT_DIR = path.join(__dirname, "project");
 
@@ -20,6 +27,31 @@ app.use(express.static(path.join(__dirname), { index: false }));
 // Redirect / to the login page
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "login.html"));
+});
+
+// Password verification endpoint
+app.post("/api/auth", (req, res) => {
+    const { password } = req.body;
+    if (!password) {
+        return res.status(400).json({ success: false, error: "No password provided" });
+    }
+
+    // Constant-time comparison to prevent timing attacks
+    const expected = Buffer.from(process.env.PASSWORD);
+    const received = Buffer.from(password);
+    const match =
+        expected.length === received.length &&
+        crypto.timingSafeEqual(expected, received);
+
+    if (match) {
+        res.json({ success: true });
+    } else {
+        // Small random delay (100–300ms) to slow brute-force attempts
+        const delay = 100 + Math.floor(Math.random() * 200);
+        setTimeout(() => {
+            res.status(401).json({ success: false, error: "Invalid password" });
+        }, delay);
+    }
 });
 
 // Helper to get individual project filename
