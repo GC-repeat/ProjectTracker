@@ -30,6 +30,26 @@ It is served behind a **Caddy reverse proxy**.
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
 
+### Password Configuration
+
+The app requires a password to be set before running. A template file named `password.setup.env` is provided in the repository.
+
+**Steps:**
+
+1. Rename `password.setup.env` to `password.env`:
+
+```bash
+cp password.setup.env password.env
+```
+
+2. Open `password.env` and set your password:
+
+```env
+PASSWORD=your_password
+```
+
+> **Important:** The `password.env` file is not tracked by Git (it is listed in `.gitignore`). Never commit it to the repository.
+
 ### Build and Run
 Clone the repository and run:
 
