@@ -292,10 +292,6 @@
 </div>
 
 <script>
-    // ─── SET YOUR PASSWORD HERE ────────────────────────────────────────────────
-    const CORRECT_PASSWORD = "PASSWORD";
-    // ──────────────────────────────────────────────────────────────────────────
-
     const input = document.getElementById('password');
     const errorMsg = document.getElementById('error-msg');
     const submitBtn = document.getElementById('submit-btn');
@@ -315,25 +311,41 @@
             : '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
     }
 
-    function checkPassword() {
+    async function checkPassword() {
         const val = input.value;
         if (!val) return;
 
-        if (val === CORRECT_PASSWORD) {
-            submitBtn.textContent = 'Authenticated...';
-            submitBtn.classList.add('loading');
-            // Set a session cookie so the page remembers
-            sessionStorage.setItem('pt_auth', '1');
-            setTimeout(() => {
-                window.location.href = '/index.html';
-            }, 600);
-        } else {
+        submitBtn.textContent = 'Verifying...';
+        submitBtn.classList.add('loading');
+
+        try {
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: val })
+            });
+
+            if (response.ok) {
+                submitBtn.textContent = 'Authenticated...';
+                sessionStorage.setItem('pt_auth', '1');
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 600);
+            } else {
+                submitBtn.textContent = 'Enter';
+                submitBtn.classList.remove('loading');
+                errorMsg.classList.add('visible');
+                card.classList.remove('shake');
+                void card.offsetWidth;
+                card.classList.add('shake');
+                input.value = '';
+                input.focus();
+            }
+        } catch (err) {
+            submitBtn.textContent = 'Enter';
+            submitBtn.classList.remove('loading');
+            errorMsg.textContent = '// server error — try again';
             errorMsg.classList.add('visible');
-            card.classList.remove('shake');
-            void card.offsetWidth; // reflow to restart animation
-            card.classList.add('shake');
-            input.value = '';
-            input.focus();
         }
     }
 
