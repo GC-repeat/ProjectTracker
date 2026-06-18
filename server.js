@@ -94,15 +94,26 @@ app.get("/api/projects", (req, res) => {
 app.post("/api/projects", (req, res) => {
     const newProjects = req.body;
 
-    // Find and delete individual files for removed projects
-    let oldProjects = [];
-    if (fs.existsSync(DATA_FILE)) {
-        oldProjects = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
+    // Determine which projects currently exist on disk by reading the
+    // individual project files directly (the source of truth used by
+    // GET /api/projects), instead of relying on projects.json, which can
+    // be stale or out of sync.
+    let existingIds = [];
+    try {
+        const files = fs.readdirSync(PROJECT_DIR).filter(f => f.endsWith('.json'));
+        existingIds = files
+            .map(f => {
+                const match = f.match(/^(\d+)_/);
+                return match ? parseInt(match[1]) : null;
+            })
+            .filter(id => id !== null);
+    } catch (err) {
+        console.error("Error reading project directory for diff:", err);
     }
-    const deletedProjects = oldProjects.filter(old =>
-        !newProjects.find(p => p.id === old.id)
-    );
-    deletedProjects.forEach(project => deleteIndividualProjectById(project.id));
+
+    const newIds = newProjects.map(p => p.id);
+    const deletedIds = existingIds.filter(id => !newIds.includes(id));
+    deletedIds.forEach(id => deleteIndividualProjectById(id));
 
     // Update projects.json for the list of IDs (NOT the time data)
     fs.writeFileSync(DATA_FILE, JSON.stringify(newProjects, null, 2));
