@@ -109,7 +109,8 @@
             position: relative;
         }
 
-        input[type="password"] {
+        input[type="password"],
+        input[type="text"] {
             width: 100%;
             background: #0d1117;
             border: 1px solid #30363d;
@@ -123,35 +124,13 @@
             transition: border-color 0.2s;
         }
 
-        input[type="password"]:focus {
+        input[type="password"]:focus,
+        input[type="text"]:focus {
             border-color: #21c87a;
         }
 
-        input[type="password"]::placeholder {
-            letter-spacing: 0.05em;
-            color: #3d444d;
-            font-size: 13px;
-        }
-
-        input[type="password1"] {
-            width: 100%;
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            padding: 0.65rem 2.5rem 0.65rem 0.9rem;
-            font-family: 'Courier New', monospace;
-            font-size: 15px;
-            color: #c9d1d9;
-            letter-spacing: 0.2em;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input[type="password1"]:focus {
-            border-color: #21c87a;
-        }
-
-        input[type="password1"]::placeholder {
+        input[type="password"]::placeholder,
+        input[type="text"]::placeholder {
             letter-spacing: 0.05em;
             color: #3d444d;
             font-size: 13px;
@@ -297,6 +276,11 @@
     const submitBtn = document.getElementById('submit-btn');
     const card = document.querySelector('.card');
 
+    // Affiche l'erreur si le serveur a redirigé avec ?error=1
+    if (new URLSearchParams(window.location.search).get('error') === '1') {
+        errorMsg.classList.add('visible');
+    }
+
     input.addEventListener('keydown', e => {
         if (e.key === 'Enter') checkPassword();
         errorMsg.classList.remove('visible');
@@ -304,7 +288,7 @@
 
     function toggleVisibility() {
         const isPassword = input.type === 'password';
-        input.type = isPassword ? 'password1' : 'password';
+        input.type = isPassword ? 'text' : 'password';
         const icon = document.getElementById('eye-icon');
         icon.innerHTML = isPassword
             ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
@@ -317,6 +301,7 @@
 
         submitBtn.textContent = 'Verifying...';
         submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
 
         try {
             const response = await fetch('/api/auth', {
@@ -327,13 +312,15 @@
 
             if (response.ok) {
                 submitBtn.textContent = 'Authenticated...';
-                sessionStorage.setItem('pt_auth', '1');
+                // La session est gérée côté serveur via le cookie httpOnly
+                // Pas de sessionStorage — le serveur protège index.html directement
                 setTimeout(() => {
                     window.location.href = '/index.html';
                 }, 600);
             } else {
                 submitBtn.textContent = 'Enter';
                 submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
                 errorMsg.classList.add('visible');
                 card.classList.remove('shake');
                 void card.offsetWidth;
@@ -344,14 +331,10 @@
         } catch (err) {
             submitBtn.textContent = 'Enter';
             submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
             errorMsg.textContent = '// server error — try again';
             errorMsg.classList.add('visible');
         }
-    }
-
-    // If already authenticated this session, skip straight to the app
-    if (sessionStorage.getItem('pt_auth') === '1') {
-        window.location.href = '/index.html';
     }
 </script>
 
