@@ -1522,7 +1522,9 @@
                     return;
                 }
                 
-                const timeValue = prompt('Enter time to add (HH:MM:SS):', '00:00:00');
+                const projectIndex0 = projects.findIndex(p => p.id == selectedRow);
+                const currentProjectTime = projectIndex0 !== -1 ? projects[projectIndex0].totalHours : '00:00:00';
+                const timeValue = prompt('Enter time to add (HH:MM:SS):', currentProjectTime);
                 
                 if (!timeValue) return;
                 
