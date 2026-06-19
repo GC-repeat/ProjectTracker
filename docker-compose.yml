@@ -5,7 +5,7 @@ services:
     build: .
     container_name: projecttracker_web
     ports:
-      - "4020:80"
+      - "4030:80"
     networks:
       - projectnet
     volumes:
