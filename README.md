@@ -48,7 +48,7 @@ mv password.setup.env password.env
 PASSWORD=your_password
 ```
 
-> ⚠️ **Important:** The `password.env` file is not tracked by Git (it is listed in `.gitignore`). Never commit it to the repository.
+> **Important:** The `password.env` file is not tracked by Git (it is listed in `.gitignore`). Never commit it to the repository.
 
 ### Build and Run
 Clone the repository and run:
