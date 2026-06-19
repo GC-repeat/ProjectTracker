@@ -1600,5 +1600,116 @@
             init();
         });
     </script>
+    
+    <button id="easterEggBtn" onclick="showEasterEgg()" title=""></button>
+
+    <div id="easterEggOverlay" onclick="hideEasterEgg()">
+        <div id="easterEggBox" onclick="event.stopPropagation()">
+            <p id="easterEggIntro">You found me, here's my GitHub</p>
+            <a href="https://github.com/Bastien-mnt0" target="_blank" rel="noopener" id="githubLink">Bastien-mnt0</a>
+            <p id="easterEggSub">Problem ?</p>
+        </div>
+    </div>
+
+    <style>
+        #easterEggBtn {
+            position: fixed;
+            bottom: 8px;
+            left: 8px;
+            width: 18px;
+            height: 18px;
+            background: transparent;
+            border: none;
+            border-radius: 50%;
+            cursor: default;
+            opacity: 0.04;
+            z-index: 9999;
+            padding: 0;
+            transition: opacity 0.3s;
+        }
+        #easterEggBtn:hover { opacity: 0.12; cursor: pointer; }
+
+        #easterEggOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.82);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+        }
+        #easterEggOverlay.active {
+            display: flex;
+            animation: fadeIn 0.25s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; } to { opacity: 1; }
+        }
+
+        #easterEggBox {
+            background: #fff;
+            border-radius: 14px;
+            padding: 36px 52px 28px;
+            text-align: center;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+ 
+        #easterEggIntro {
+            font-size: 16px;
+            color: #666;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0 0 8px;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.4); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+
+        #githubLink {
+            display: block;
+            font-size: 28px;
+            font-weight: 800;
+            font-family: 'Segoe UI', sans-serif;
+            color: #111;
+            text-decoration: none;
+            letter-spacing: 2px;
+            animation: jiggle 0.6s infinite;
+        }
+        #githubLink:hover { color: #aaa; }
+
+        @keyframes jiggle {
+            0%   { transform: translate(0, 0)      rotate(0deg);   }
+            15%  { transform: translate(-3px, 2px)  rotate(-2deg);  }
+            30%  { transform: translate(3px, -2px)  rotate(2deg);   }
+            45%  { transform: translate(-2px, 3px)  rotate(-1deg);  }
+            60%  { transform: translate(2px, -1px)  rotate(1.5deg); }
+            75%  { transform: translate(-1px, 2px)  rotate(-1deg);  }
+            100% { transform: translate(0, 0)      rotate(0deg);   }
+        }
+
+        #easterEggSub {
+            font-size: 11px;
+            color: #aaa;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin: 10px 0 0;
+            font-style: italic;
+            font-family: 'Segoe UI', sans-serif;
+        }
+    </style>
+
+    <script>
+        function showEasterEgg() {
+            document.getElementById('easterEggOverlay').classList.add('active');
+        }
+        function hideEasterEgg() {
+            document.getElementById('easterEggOverlay').classList.remove('active');
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') hideEasterEgg();
+        });
+    </script>
+
 </body>
 </html>
