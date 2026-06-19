@@ -39,7 +39,7 @@ The app requires a password to be set before running. A template file named `pas
 1. Rename `password.setup.env` to `password.env`:
 
 ```bash
-cp password.setup.env password.env
+mv password.setup.env password.env
 ```
 
 2. Open `password.env` and set your password:
@@ -48,7 +48,7 @@ cp password.setup.env password.env
 PASSWORD=your_password
 ```
 
-> **Important:** The `password.env` file is not tracked by Git (it is listed in `.gitignore`). Never commit it to the repository.
+> ⚠️ **Important:** The `password.env` file is not tracked by Git (it is listed in `.gitignore`). Never commit it to the repository.
 
 ### Build and Run
 Clone the repository and run:
