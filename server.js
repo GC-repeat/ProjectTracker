@@ -109,8 +109,8 @@ app.get("/api/projects", (req, res) => {
         const projects = files.map(file => {
             return JSON.parse(fs.readFileSync(path.join(PROJECT_DIR, file), "utf-8"));
         });
-        // Sort by ID for consistency
-        projects.sort((a, b) => a.id - b.id);
+        // Sort by order field (drag & drop), fallback to id
+        projects.sort((a, b) => (a.order ?? a.id) - (b.order ?? b.id));
         res.json(projects);
     } catch (err) {
         // Fallback to projects.json

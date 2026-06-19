@@ -1227,7 +1227,7 @@
                         this.classList.remove('drag-over');
                     });
 
-                    row.addEventListener('drop', function(e) {
+                    row.addEventListener('drop', async function(e) {
                         e.preventDefault();
                         if (!dragSrc || dragSrc === this) return;
 
@@ -1235,17 +1235,31 @@
 
                         const draggedId = parseInt(dragSrc.getAttribute('data-id'));
                         const targetId  = parseInt(this.getAttribute('data-id'));
+                        if (draggedId === targetId) return;
 
-                        const draggedIdx = projects.findIndex(p => p.id === draggedId && p.status === status);
-                        const targetIdx  = projects.findIndex(p => p.id === targetId  && p.status === status);
+                        const draggedGlobalIdx = projects.findIndex(p => p.id === draggedId);
+                        const targetGlobalIdx  = projects.findIndex(p => p.id === targetId);
+                        if (draggedGlobalIdx === -1 || targetGlobalIdx === -1) return;
 
-                        if (draggedIdx === -1 || targetIdx === -1) return;
+                        // Retire l'element glisse
+                        const [moved] = projects.splice(draggedGlobalIdx, 1);
 
-                        const [moved] = projects.splice(draggedIdx, 1);
-                        const newTarget = projects.findIndex(p => p.id === targetId && p.status === status);
-                        projects.splice(newTarget + (draggedIdx < targetIdx ? 1 : 0), 0, moved);
+                        // Recalcule l'index cible apres suppression
+                        const newTargetIdx = projects.findIndex(p => p.id === targetId);
 
-                        saveData();
+                        // Insere apres la cible si on descendait, avant si on montait
+                        const insertAt = draggedGlobalIdx < targetGlobalIdx
+                            ? newTargetIdx + 1
+                            : newTargetIdx;
+
+                        projects.splice(insertAt, 0, moved);
+
+                        // Reassign order field to reflect new positions
+                        projects.forEach((p, i) => { p.order = i; });
+
+                        await saveData();
+                        // Also persist order on each individual project file
+                        await Promise.all(projects.map(p => saveIndividualProject(p)));
                         renderProjects();
                     });
                 });
