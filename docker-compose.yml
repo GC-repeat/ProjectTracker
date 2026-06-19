@@ -5,7 +5,7 @@ services:
     build: .
     container_name: projecttracker_web_troll
     ports:
-      - "4030:80"
+      - "4020:80"
     networks:
       - projectnet
     volumes:
