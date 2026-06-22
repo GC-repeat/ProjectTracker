@@ -1241,13 +1241,10 @@
                         const targetGlobalIdx  = projects.findIndex(p => p.id === targetId);
                         if (draggedGlobalIdx === -1 || targetGlobalIdx === -1) return;
 
-                        // Retire l'element glisse
                         const [moved] = projects.splice(draggedGlobalIdx, 1);
 
-                        // Recalcule l'index cible apres suppression
                         const newTargetIdx = projects.findIndex(p => p.id === targetId);
 
-                        // Insere apres la cible si on descendait, avant si on montait
                         const insertAt = draggedGlobalIdx < targetGlobalIdx
                             ? newTargetIdx + 1
                             : newTargetIdx;

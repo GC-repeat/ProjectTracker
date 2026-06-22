@@ -30,36 +30,35 @@ if (!fs.existsSync(PROJECT_DIR)) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session middleware — auth stockée côté serveur
+// Session middleware — authentication stored on the server
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        httpOnly: true,       // inaccessible au JS côté client
-        sameSite: 'strict',   // protection CSRF
-        // secure: true,      // à activer si tu passes en HTTPS
-        maxAge: 8 * 60 * 60 * 1000  // session de 8h
+        httpOnly: true,
+        sameSite: 'strict',
+        maxAge: 8 * 60 * 60 * 1000 
     }
 }));
 
-// Middleware de protection — bloque tout sans session valide
+// Protective middleware — blocks everything without a valid session
 function requireAuth(req, res, next) {
     if (req.session && req.session.authenticated) {
         return next();
     }
-    // Requête API → 401, sinon redirect vers login
+    // API request → 401, otherwise redirect to login
     if (req.path.startsWith('/api/')) {
         return res.status(401).json({ error: "Unauthorized" });
     }
     res.redirect('/');
 }
 
-// Fichiers publics (login.html, assets CSS/JS du login...)
-// index: false pour ne PAS servir index.html automatiquement
+// Public files (login.html, CSS/JS assets for login...)
+// index: false to prevent automatic serving of index.html
 app.use(express.static(path.join(__dirname), { index: false }));
 
-// Redirect / vers la page de login
+// Redirect / to the login page
 app.get("/", (req, res) => {
     if (req.session && req.session.authenticated) {
         return res.redirect('/index.html');
@@ -67,14 +66,14 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "login.html"));
 });
 
-// Route login — vérifie le mdp et crée la session
+// Route login — verifies the password and creates the session
 app.post("/api/auth", (req, res) => {
     const { password } = req.body;
     if (!password) {
         return res.status(400).json({ success: false, error: "No password provided" });
     }
 
-    // Comparaison en temps constant pour éviter les timing attacks
+    // Constant-time comparison to avoid timing attacks
     const expected = Buffer.from(process.env.PASSWORD);
     const received = Buffer.from(password);
     const match =
@@ -82,10 +81,10 @@ app.post("/api/auth", (req, res) => {
         crypto.timingSafeEqual(expected, received);
 
     if (match) {
-        req.session.authenticated = true;   // ← session serveur, non falsifiable
+        req.session.authenticated = true;
         res.json({ success: true });
     } else {
-        // Délai aléatoire pour ralentir le brute-force
+        // Random delay to slow down brute-force attacks
         const delay = 100 + Math.floor(Math.random() * 200);
         setTimeout(() => {
             res.status(401).json({ success: false, error: "Invalid password" });
@@ -93,19 +92,19 @@ app.post("/api/auth", (req, res) => {
     }
 });
 
-// Route logout — détruit la session
+// Route logout — session destroyed
 app.get("/logout", (req, res) => {
     req.session.destroy(() => {
         res.redirect('/');
     });
 });
 
-// index.html — protégé, accessible uniquement après login
+// index.html — protected, accessible only after login
 app.get("/index.html", requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// ─── Routes API — toutes protégées par requireAuth ───────────────────────────
+// ─── API Routes — all protected by requireAuth ───────────────────────────
 
 // Helper to get individual project filename
 function getProjectFilename(project) {
