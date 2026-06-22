@@ -49,7 +49,7 @@ PASSWORD=your_password
 SESSION_SECRET=put_a_long_random_string_here_min_32_chars
 ```
 
-> **Important:** The `password.env` file is not tracked by Git (it is listed in `.gitignore`). Never commit it to the repository.
+> **Note:** The `password.env` file is not tracked by Git (it is listed in `.gitignore`). Never commit it to the repository.
 
 ### Build and Run
 Clone the repository and run:
