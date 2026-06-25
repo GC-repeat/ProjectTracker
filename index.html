@@ -296,12 +296,24 @@
             border-bottom: 2px solid #ecf0f1;
         }
         
+        .import-save-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+        
         .save-section {
             background: #e8f4fc;
             padding: 15px;
             border-radius: 8px;
-            margin-top: 30px;
+            margin-top: 20px;
+            margin-left: 20px;
+            margin-bottom: 20px;
             text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
         .save-btn {
@@ -315,6 +327,28 @@
             background: #8e44ad;
         }
         
+        .import-section {
+            background: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-right: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .import-btn {
+            background: #9b59b6;
+            color: white;
+            padding: 12px 25px;
+            font-size: 16px;
+        }
+        
+        .import-btn:hover {
+            background: #8e44ad;
+        }
+
         .notification {
             position: fixed;
             top: 20px;
@@ -345,6 +379,96 @@
             color: #7f8c8d;
             font-size: 14px;
             border-top: 1px solid #ecf0f1;
+        }
+
+        /* Drag & Drop */
+        .project-table tbody tr[draggable="true"] {
+            cursor: grab;
+        }
+
+        .project-table tbody tr[draggable="true"]:active {
+            cursor: grabbing;
+        }
+
+        .drag-handle {
+            color: #bdc3c7;
+            font-size: 16px;
+            cursor: grab;
+            padding: 0 4px;
+            user-select: none;
+        }
+
+        .drag-handle:hover {
+            color: #7f8c8d;
+        }
+
+        tr.dragging {
+            opacity: 0.4;
+            background: #dfe6e9 !important;
+        }
+
+        tr.drag-over {
+            border-top: 3px solid #3498db !important;
+            background: #ebf5fb !important;
+        }
+
+        .multi-select-bar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: #ffeaa7 !important;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .multi-select-bar.visible {
+            display: flex;
+        }
+
+        .multi-select-bar span {
+            font-weight: bold;
+            color: #000000;
+            flex: 1;
+        }
+
+        .finish-selected-btn {
+            background: #f39c12;
+            color: white;
+        }
+
+        .finish-selected-btn:hover {
+            background: #e67e22;
+        }
+
+        .delete-selected-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .delete-selected-btn:hover {
+            background: #c0392b;
+        }
+
+        .deselect-all-btn {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .deselect-all-btn:hover {
+            background: #7f8c8d;
+        }
+
+        .selected-row {
+            background-color: #ffeaa7 !important;
+        }
+
+        .project-table input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
         }
         
         .charts-container {
@@ -378,6 +502,10 @@
             
             nav {
                 justify-content: center;
+            }
+            
+            .import-save-section {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -453,10 +581,19 @@
                 </div>
                 
                 <h2 class="section-title">Current Projects</h2>
+
+                <div class="multi-select-bar" id="multiSelectBar">
+                    <span id="multiSelectCount">0 project(s) selected</span>
+                    <button class="finish-selected-btn" id="finishSelectedBtn">✔ Finish selected</button>
+                    <button class="delete-selected-btn" id="deleteSelectedBtn">✖ Delete selected</button>
+                    <button class="deselect-all-btn" id="deselectAllBtn">✕ Deselect all</button>
+                </div>
+
                 <table class="project-table" id="currentProjectsTable">
                     <thead>
                         <tr>
-                            <th>Select</th>
+                            <th style="width:30px"></th>
+                            <th><input type="checkbox" id="selectAllCheckbox" title="Select all"></th>
                             <th>Project Title</th>
                             <th>Researchers</th>
                             <th>Engineers</th>
@@ -474,9 +611,19 @@
                 </table>
                 
                 <h2 class="section-title">Finished Projects</h2>
+
+                <div class="multi-select-bar" id="multiSelectBarFinished">
+                    <span id="multiSelectCountFinished">0 project(s) selected</span>
+                    <button class="reopen-btn" id="reopenSelectedBtn">↩ Reopen selected</button>
+                    <button class="delete-selected-btn" id="deleteSelectedFinishedBtn">✖ Delete selected</button>
+                    <button class="deselect-all-btn" id="deselectAllFinishedBtn">✕ Deselect all</button>
+                </div>
+
                 <table class="project-table" id="finishedProjectsTable">
                     <thead>
                         <tr>
+                            <th style="width:30px"></th>
+                            <th><input type="checkbox" id="selectAllFinishedCheckbox" title="Select all"></th>
                             <th>Project Title</th>
                             <th>Researchers</th>
                             <th>Engineers</th>
@@ -504,10 +651,19 @@
                     </div>
                 </div>
                 
-                <div class="save-section">
-                    <h2>Save Your Work</h2>
-                    <p>Your data is automatically saved to your browser's local storage.</p>
-                    <button class="save-btn" id="exportBtn">Export Data as JSON</button>
+                <div class="import-save-section">    
+                    <div class="save-section">
+                        <h2>Save Your Work</h2>
+                        <p>Your data is automatically saved to your browser's local storage.</p>
+                        <button class="save-btn" id="exportBtn">Export Data as JSON</button>
+                    </div>
+
+                    <div class="import-section">
+                        <h2>Import Data</h2>
+                        <p>Import your data from a JSON file.</p>
+                        <button class="import-btn" id="importBtn">Import Data</button>
+                        <input type="file" id="importFileInput" accept=".json,application/json" style="display:none">
+                    </div>
                 </div>
 
                 <div class="credit">
@@ -537,12 +693,26 @@
             const headerLogo = document.getElementById('headerLogo');
             const timeChartTitle = document.getElementById('timeChartTitle');
             const projectsChartTitle = document.getElementById('projectsChartTitle');
+            const importBtn       = document.getElementById('importBtn');
+            const importFileInput = document.getElementById('importFileInput');
+            const multiSelectBar  = document.getElementById('multiSelectBar');
+            const multiSelectCount = document.getElementById('multiSelectCount');
+            const finishSelectedBtn = document.getElementById('finishSelectedBtn');
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            const deselectAllBtn    = document.getElementById('deselectAllBtn');
+            const multiSelectBarFinished = document.getElementById('multiSelectBarFinished');
+            const multiSelectCountFinished = document.getElementById('multiSelectCountFinished');
+            const reopenSelectedBtn = document.getElementById('reopenSelectedBtn');
+            const deleteSelectedFinishedBtn = document.getElementById('deleteSelectedFinishedBtn');
+            const deselectAllFinishedBtn = document.getElementById('deselectAllFinishedBtn');
             
             // Data structure
             let projects = [];
             let timerInterval = null;
             let seconds = 0;
             let selectedRow = null;
+            let selectedRows = new Set();
+            let selectedFinishedRows = new Set();
             let isTimerRunning = false;
             let currentCategory = 'all';
             let timeChart = null;
@@ -572,6 +742,16 @@
                 manualBtn.addEventListener('click', openManualTimeModal);
                 addProjectBtn.addEventListener('click', addProject);
                 exportBtn.addEventListener('click', exportData);
+                importBtn.addEventListener('click', () => importFileInput.click());
+                importFileInput.addEventListener('change', importData);
+
+                finishSelectedBtn.addEventListener('click', finishSelectedProjects);
+                deleteSelectedBtn.addEventListener('click', deleteSelectedProjects);
+                deselectAllBtn.addEventListener('click', deselectAll);
+                reopenSelectedBtn.addEventListener('click', reopenSelectedProjects);
+                deleteSelectedFinishedBtn.addEventListener('click', deleteSelectedFinishedProjects);
+                deselectAllFinishedBtn.addEventListener('click', deselectAllFinished);
+           
                 
                 // Navigation buttons
                 navButtons.forEach(btn => {
@@ -690,6 +870,164 @@
                 linkElement.click();
             }
             
+            // Import data as JSON
+            function importData() {
+                const file = importFileInput.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        const parsed   = JSON.parse(e.target.result);
+                        const imported = Array.isArray(parsed) ? parsed : (parsed.projects || null);
+
+                        if (!imported || !Array.isArray(imported)) {
+                            showNotification('Invalid JSON: no projects array found', 'error');
+                            return;
+                        }
+
+                        if (!confirm(`Add ${imported.length} imported project(s) to the current list?`)) {
+                            importFileInput.value = '';
+                            return;
+                        }
+
+                        let nextId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
+
+                        const addedProjects = imported.map(p => ({
+                            ...p,
+                            id: nextId++
+                        }));
+
+                        projects = projects.concat(addedProjects);
+
+                        saveData();
+
+                        addedProjects.forEach(p => saveIndividualProject(p));
+
+                        renderProjects();
+                        renderCharts();
+                        showNotification(`${addedProjects.length} project(s) imported successfully!`);
+                    } catch (err) {
+                        showNotification('Error reading JSON: ' + err.message, 'error');
+                    }
+                    importFileInput.value = '';
+                };
+                reader.readAsText(file);
+            }
+
+            
+            // Update multi-select bar visibility
+            function updateMultiSelectBar() {
+                if (selectedRows.size > 1) {
+                    multiSelectBar.classList.add('visible');
+                    multiSelectCount.textContent = `${selectedRows.size} projects selected`;
+                } else {
+                    multiSelectBar.classList.remove('visible');
+                }
+                // Sync selectAll checkbox
+                const allCheckboxes = currentProjectsTable.querySelectorAll('input[type="checkbox"]');
+                const selectAllCb = document.getElementById('selectAllCheckbox');
+                if (selectAllCb) {
+                    selectAllCb.checked = allCheckboxes.length > 0 && [...allCheckboxes].every(cb => cb.checked);
+                    selectAllCb.indeterminate = selectedRows.size > 0 && !selectAllCb.checked;
+                }
+            }
+
+            function deselectAll() {
+                selectedRows.clear();
+                selectedRow = null;
+                currentProjectsTable.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                currentProjectsTable.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                updateMultiSelectBar();
+            }
+
+            function updateMultiSelectBarFinished() {
+                if (selectedFinishedRows.size > 1) {
+                    multiSelectBarFinished.classList.add('visible');
+                    multiSelectCountFinished.textContent = `${selectedFinishedRows.size} projects selected`;
+                } else {
+                    multiSelectBarFinished.classList.remove('visible');
+                }
+                const selectAllCb = document.getElementById('selectAllFinishedCheckbox');
+                if (selectAllCb) {
+                    const allCbs = finishedProjectsTable.querySelectorAll('input[type="checkbox"]');
+                    selectAllCb.checked = allCbs.length > 0 && [...allCbs].every(cb => cb.checked);
+                    selectAllCb.indeterminate = selectedFinishedRows.size > 0 && !selectAllCb.checked;
+                }
+            }
+
+            function deselectAllFinished() {
+                selectedFinishedRows.clear();
+                finishedProjectsTable.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                finishedProjectsTable.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                updateMultiSelectBarFinished();
+            }
+
+            async function reopenSelectedProjects() {
+                if (selectedFinishedRows.size === 0) return;
+                if (!confirm(`Reopen ${selectedFinishedRows.size} project(s)?`)) return;
+                const count = selectedFinishedRows.size;
+                for (const id of selectedFinishedRows) {
+                    const idx = projects.findIndex(p => p.id == id);
+                    if (idx !== -1) {
+                        projects[idx].status = 'active';
+                        projects[idx].endDate = '';
+                        await saveIndividualProject(projects[idx]);
+                    }
+                }
+                selectedFinishedRows.clear();
+                await saveData();
+                renderProjects();
+                showNotification(`${count} project(s) reopened!`);
+            }
+
+            async function deleteSelectedFinishedProjects() {
+                if (selectedFinishedRows.size === 0) return;
+                if (!confirm(`Delete ${selectedFinishedRows.size} project(s)? This cannot be undone.`)) return;
+                const count = selectedFinishedRows.size;
+                for (const id of selectedFinishedRows) {
+                    projects = projects.filter(p => p.id != id);
+                    try { await fetch(`/api/project/${id}`, { method: 'DELETE' }); } catch(e) {}
+                }
+                selectedFinishedRows.clear();
+                await saveData();
+                renderProjects();
+                showNotification(`${count} project(s) deleted!`);
+            }
+
+            async function finishSelectedProjects() {
+                if (selectedRows.size === 0) return;
+                if (!confirm(`Mark ${selectedRows.size} project(s) as finished?`)) return;
+                for (const id of selectedRows) {
+                    const idx = projects.findIndex(p => p.id == id);
+                    if (idx !== -1) {
+                        projects[idx].status = 'finished';
+                        projects[idx].endDate = new Date().toLocaleDateString('en-GB');
+                        await saveIndividualProject(projects[idx]);
+                    }
+                }
+                selectedRows.clear();
+                selectedRow = null;
+                await saveData();
+                renderProjects();
+                showNotification(`${selectedRows.size === 0 ? 'Projects' : 'Projects'} marked as finished!`);
+            }
+
+            async function deleteSelectedProjects() {
+                if (selectedRows.size === 0) return;
+                if (!confirm(`Delete ${selectedRows.size} project(s)? This cannot be undone.`)) return;
+                const count = selectedRows.size;
+                for (const id of selectedRows) {
+                    projects = projects.filter(p => p.id != id);
+                    try { await fetch(`/api/project/${id}`, { method: 'DELETE' }); } catch(e) {}
+                }
+                selectedRows.clear();
+                selectedRow = null;
+                await saveData();
+                renderProjects();
+                showNotification(`${count} project(s) deleted!`);
+            }
+
             // Render projects to the table
             function renderProjects() {
                 // Clear tables
@@ -705,8 +1043,14 @@
                 // Render active projects
                 filteredProjects.filter(p => p.status === 'active').forEach(project => {
                     const row = document.createElement('tr');
+                    row.setAttribute('draggable', 'true');
+                    row.setAttribute('data-id', project.id);
+                    const isSelected = selectedRows.has(String(project.id));
+                    if (isSelected) row.classList.add('selected-row');
+
                     row.innerHTML = `
-                        <td><input type="radio" name="projectSelect" data-id="${project.id}"></td>
+                        <td><span class="drag-handle" title="Déplacer">⠿</span></td>
+                        <td><input type="checkbox" data-id="${project.id}" ${isSelected ? 'checked' : ''}></td>
                         <td>${project.title}</td>
                         <td>${project.researchers.join(', ')}</td>
                         <td>${project.engineers.join(', ')}</td>
@@ -722,35 +1066,71 @@
                     `;
                     currentProjectsTable.appendChild(row);
                     
-                    // Add event listener to radio button
-                    const radio = row.querySelector('input[type="radio"]');
-                    radio.addEventListener('change', function() {
-                        selectedRow = this.getAttribute('data-id');
-                        document.querySelectorAll('tr').forEach(row => {
-                            row.classList.remove('active-row');
-                        });
-                        this.parentElement.parentElement.classList.add('active-row');
+                    // Checkbox: toggle selection (click again = deselect)
+                    const checkbox = row.querySelector('input[type="checkbox"]');
+                    checkbox.addEventListener('change', function() {
+                        const id = String(this.getAttribute('data-id'));
+                        if (this.checked) {
+                            selectedRows.add(id);
+                            selectedRow = id;
+                            row.classList.add('selected-row');
+                        } else {
+                            selectedRows.delete(id);
+                            row.classList.remove('selected-row');
+                            selectedRow = selectedRows.size > 0 ? [...selectedRows].at(-1) : null;
+                        }
+                        updateMultiSelectBar();
                     });
                     
-                    // Add event listener to move button
+                    // Move button
                     const moveBtn = row.querySelector('.move-btn');
                     moveBtn.addEventListener('click', function() {
-                        const projectId = this.getAttribute('data-id');
-                        moveProjectToFinished(projectId);
+                        moveProjectToFinished(this.getAttribute('data-id'));
                     });
                     
-                    // Add event listener to delete button
+                    // Delete button
                     const deleteBtn = row.querySelector('.delete-btn');
                     deleteBtn.addEventListener('click', function() {
-                        const projectId = this.getAttribute('data-id');
-                        deleteProject(projectId);
+                        deleteProject(this.getAttribute('data-id'));
                     });
                 });
+
+                // Select-all checkbox listener
+                const selectAllCb = document.getElementById('selectAllCheckbox');
+                if (selectAllCb) {
+                    selectAllCb.replaceWith(selectAllCb.cloneNode(true)); // remove old listener
+                    const freshCb = document.getElementById('selectAllCheckbox');
+                    freshCb.addEventListener('change', function() {
+                        const allCbs = currentProjectsTable.querySelectorAll('input[type="checkbox"]');
+                        allCbs.forEach(cb => {
+                            cb.checked = this.checked;
+                            const id = String(cb.getAttribute('data-id'));
+                            if (this.checked) {
+                                selectedRows.add(id);
+                                cb.closest('tr').classList.add('selected-row');
+                            } else {
+                                selectedRows.delete(id);
+                                cb.closest('tr').classList.remove('selected-row');
+                            }
+                        });
+                        selectedRow = selectedRows.size > 0 ? [...selectedRows].at(-1) : null;
+                        updateMultiSelectBar();
+                    });
+                }
+
+                updateMultiSelectBar();
                 
                 // Render finished projects
                 filteredProjects.filter(p => p.status === 'finished').forEach(project => {
                     const row = document.createElement('tr');
+                    row.setAttribute('draggable', 'true');
+                    row.setAttribute('data-id', project.id);
+                    const isSelected = selectedFinishedRows.has(String(project.id));
+                    if (isSelected) row.classList.add('selected-row');
+
                     row.innerHTML = `
+                        <td><span class="drag-handle" title="Déplacer">⠿</span></td>
+                        <td><input type="checkbox" data-id="${project.id}" ${isSelected ? 'checked' : ''}></td>
                         <td>${project.title}</td>
                         <td>${project.researchers.join(', ')}</td>
                         <td>${project.engineers.join(', ')}</td>
@@ -765,23 +1145,123 @@
                         </td>
                     `;
                     finishedProjectsTable.appendChild(row);
-                    
-                    // Add event listener to reopen button
-                    const reopenBtn = row.querySelector('.reopen-btn');
-                    reopenBtn.addEventListener('click', function() {
-                        const projectId = this.getAttribute('data-id');
-                        reopenProject(projectId);
+
+                    const checkbox = row.querySelector('input[type="checkbox"]');
+                    checkbox.addEventListener('change', function() {
+                        const id = String(this.getAttribute('data-id'));
+                        if (this.checked) {
+                            selectedFinishedRows.add(id);
+                            row.classList.add('selected-row');
+                        } else {
+                            selectedFinishedRows.delete(id);
+                            row.classList.remove('selected-row');
+                        }
+                        updateMultiSelectBarFinished();
                     });
                     
-                    // Add event listener to delete button
+                    const reopenBtn = row.querySelector('.reopen-btn');
+                    reopenBtn.addEventListener('click', function() {
+                        reopenProject(this.getAttribute('data-id'));
+                    });
+                    
                     const deleteBtn = row.querySelector('.delete-btn');
                     deleteBtn.addEventListener('click', function() {
-                        const projectId = this.getAttribute('data-id');
-                        deleteProject(projectId);
+                        deleteProject(this.getAttribute('data-id'));
+                    });
+                });
+
+                // Select-all for finished
+                const selectAllFinishedCb = document.getElementById('selectAllFinishedCheckbox');
+                if (selectAllFinishedCb) {
+                    selectAllFinishedCb.replaceWith(selectAllFinishedCb.cloneNode(true));
+                    const freshCb = document.getElementById('selectAllFinishedCheckbox');
+                    freshCb.addEventListener('change', function() {
+                        const allCbs = finishedProjectsTable.querySelectorAll('input[type="checkbox"]');
+                        allCbs.forEach(cb => {
+                            cb.checked = this.checked;
+                            const id = String(cb.getAttribute('data-id'));
+                            if (this.checked) {
+                                selectedFinishedRows.add(id);
+                                cb.closest('tr').classList.add('selected-row');
+                            } else {
+                                selectedFinishedRows.delete(id);
+                                cb.closest('tr').classList.remove('selected-row');
+                            }
+                        });
+                        updateMultiSelectBarFinished();
+                    });
+                }
+
+                updateMultiSelectBarFinished();
+
+                // Activate drag & drop on both tables
+                enableDragAndDrop(currentProjectsTable, 'active');
+                enableDragAndDrop(finishedProjectsTable, 'finished');
+            }
+
+            // ─── Drag & Drop ────────────────────────────────────────────────
+            function enableDragAndDrop(tbody, status) {
+                let dragSrc = null;
+
+                tbody.querySelectorAll('tr[draggable]').forEach(row => {
+                    row.addEventListener('dragstart', function(e) {
+                        dragSrc = this;
+                        this.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', this.getAttribute('data-id'));
+                    });
+
+                    row.addEventListener('dragend', function() {
+                        this.classList.remove('dragging');
+                        tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over'));
+                    });
+
+                    row.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over'));
+                        if (this !== dragSrc) this.classList.add('drag-over');
+                    });
+
+                    row.addEventListener('dragleave', function() {
+                        this.classList.remove('drag-over');
+                    });
+
+                    row.addEventListener('drop', async function(e) {
+                        e.preventDefault();
+                        if (!dragSrc || dragSrc === this) return;
+
+                        this.classList.remove('drag-over');
+
+                        const draggedId = parseInt(dragSrc.getAttribute('data-id'));
+                        const targetId  = parseInt(this.getAttribute('data-id'));
+                        if (draggedId === targetId) return;
+
+                        const draggedGlobalIdx = projects.findIndex(p => p.id === draggedId);
+                        const targetGlobalIdx  = projects.findIndex(p => p.id === targetId);
+                        if (draggedGlobalIdx === -1 || targetGlobalIdx === -1) return;
+
+                        const [moved] = projects.splice(draggedGlobalIdx, 1);
+
+                        const newTargetIdx = projects.findIndex(p => p.id === targetId);
+
+                        const insertAt = draggedGlobalIdx < targetGlobalIdx
+                            ? newTargetIdx + 1
+                            : newTargetIdx;
+
+                        projects.splice(insertAt, 0, moved);
+
+                        // Reassign order field to reflect new positions
+                        projects.forEach((p, i) => { p.order = i; });
+
+                        await saveData();
+                        // Also persist order on each individual project file
+                        await Promise.all(projects.map(p => saveIndividualProject(p)));
+                        renderProjects();
                     });
                 });
             }
-            
+
             // Render charts
             function renderCharts() {
                 // Calculate data for charts
@@ -984,7 +1464,7 @@
                 
                 isTimerRunning = true;
                 const timeCell = document.getElementById(`time-${selectedRow}`);
-                timeCell.classList.add('timer-active');
+                if (timeCell) timeCell.classList.add('timer-active');
                 
                 // Start the timer
                 timerInterval = setInterval(function() {
@@ -1039,7 +1519,9 @@
                     return;
                 }
                 
-                const timeValue = prompt('Enter time to add (HH:MM:SS):', '00:00:00');
+                const projectIndex0 = projects.findIndex(p => p.id == selectedRow);
+                const currentProjectTime = projectIndex0 !== -1 ? projects[projectIndex0].totalHours : '00:00:00';
+                const timeValue = prompt('Enter time to add (HH:MM:SS):', currentProjectTime);
                 
                 if (!timeValue) return;
                 
@@ -1117,5 +1599,6 @@
             init();
         });
     </script>
+    
 </body>
 </html>
