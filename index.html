@@ -1495,7 +1495,7 @@
                         
                         projects[projectIndex].totalHours = formatTime(totalSeconds);
                         projects[projectIndex].lastUpdate = new Date().toLocaleDateString('en-GB').concat('\r\n', new Date().toLocaleTimeString('en-GB'));
-                        
+                       
                         // Save main file AND individual file
                         saveIndividualProject(projects[projectIndex]);
                         renderProjects();
