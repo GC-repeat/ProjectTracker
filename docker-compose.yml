@@ -6,6 +6,7 @@ services:
     container_name: projecttracker_web_troll
     ports:
       - "4020:80"
+    restart: unless-stopped
     networks:
       - projectnet
     volumes:
